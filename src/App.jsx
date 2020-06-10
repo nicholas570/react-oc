@@ -1,47 +1,44 @@
-import React from 'react';
+import React, { Component } from 'react';
 import shuffle from 'lodash.shuffle';
 
 import './App.css';
 
 import Card from './Card';
 import GuessCount from './GuessCount';
-import HallOfFame, { FAKE_HOF } from './HallOfFame';
+import HallOfFame from './HallOfFame';
 import HighScoreInput from './HighScoreInput';
 
 const SIDE = 6;
-const SYMBOLS = [
-  '😀',
-  '🎉',
-  '💖',
-  '🎩',
-  '🐶',
-  '🐱',
-  '🦄',
-  '🐬',
-  '🌍',
-  '🌛',
-  '🌞',
-  '💫',
-  '🍎',
-  '🍌',
-  '🍓',
-  '🍐',
-  '🍟',
-  '🍿',
-];
-const icons = SYMBOLS.map((item, i) => ({ id: i, icon: item }));
+export const SYMBOLS = '😀🎉💖🎩🐶🐱🦄🐬🌍🌛🌞💫🍎🍌🍓🍐🍟🍿';
 const VISUAL_PAUSE_MSECS = 750;
 
-class App extends React.Component {
+class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       cards: this.generateCards(),
       currentPair: [],
       guesses: 0,
+      hallOfFame: [],
       matchedCardIndices: [],
     };
+    this.displayHallOfFame = this.displayHallOfFame.bind(this);
     this.handleCardClick = this.handleCardClick.bind(this);
+  }
+
+  displayHallOfFame(hallOfFame) {
+    this.setState({ hallOfFame });
+  }
+
+  generateCards() {
+    const result = [];
+    const size = SIDE * SIDE;
+    const candidates = shuffle(SYMBOLS);
+    while (result.length < size) {
+      const card = candidates.pop();
+      result.push(card, card);
+    }
+    return shuffle(result);
   }
 
   getFeedbackForCard(index) {
@@ -51,22 +48,12 @@ class App extends React.Component {
     if (currentPair.length < 2) {
       return indexMatched || index === currentPair[0] ? 'visible' : 'hidden';
     }
+
     if (currentPair.includes(index)) {
       return indexMatched ? 'justMatched' : 'justMismatched';
     }
 
     return indexMatched ? 'visible' : 'hidden';
-  }
-
-  generateCards() {
-    const result = [];
-    const size = SIDE * SIDE;
-    const candidates = shuffle(icons);
-    while (result.length < size) {
-      const card = candidates.pop();
-      result.push(card, card);
-    }
-    return shuffle(result);
   }
 
   handleCardClick(index) {
@@ -100,24 +87,24 @@ class App extends React.Component {
   }
 
   render() {
-    const { cards, guesses, matchedCardIndices } = this.state;
+    const { cards, guesses, hallOfFame, matchedCardIndices } = this.state;
     const won = matchedCardIndices.length === cards.length;
-
     return (
       <div className="memory">
         <GuessCount guesses={guesses} />
         {cards.map((card, index) => (
           <Card
-            /* eslint-disable-next-line */
-            key={index}
-            index={index}
-            card={card.icon}
+            card={card}
             feedback={this.getFeedbackForCard(index)}
+            index={index}
+            key={index}
             onClick={this.handleCardClick}
           />
         ))}
-        <HighScoreInput guesses={guesses} />
-        {won && <HallOfFame entries={FAKE_HOF} />}
+        <HallOfFame entries={hallOfFame} />
+        {won && (
+          <HighScoreInput guesses={guesses} onStored={this.displayHallOfFame} />
+        )}
       </div>
     );
   }

@@ -45,10 +45,8 @@ const HOF_KEY = '::Memory::HallofFame';
 const HOF_MAX_SIZE = 10;
 
 export function saveHOFEntry(entry, onStored) {
-  const onEntry = entry;
-  const stored = onStored;
-  onEntry.date = new Date().toLocaleDateString();
-  onEntry.id = Date.now();
+  entry.date = new Date().toLocaleDateString();
+  entry.id = Date.now();
 
   const entries = JSON.parse(localStorage.getItem(HOF_KEY) || '[]');
   const insertionPoint = entries.findIndex(
@@ -56,14 +54,14 @@ export function saveHOFEntry(entry, onStored) {
   );
 
   if (insertionPoint === -1) {
-    entries.push(onEntry);
+    entries.push(entry);
   } else {
-    entries.splice(insertionPoint, 0, onEntry);
+    entries.splice(insertionPoint, 0, entry);
   }
   if (entries.length > HOF_MAX_SIZE) {
     entries.splice(HOF_MAX_SIZE, entries.length);
   }
 
   localStorage.setItem(HOF_KEY, JSON.stringify(entries));
-  stored(entries);
+  onStored(entries);
 }

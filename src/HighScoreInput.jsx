@@ -11,17 +11,30 @@ class HighScoreInput extends Component {
     this.state = {
       winner: '',
     };
+    this.handleWinnerUpdate = this.handleWinnerUpdate.bine(this);
+    this.persistWinner = this.persistWinner.bind(this);
+  }
+
+  handleWinnerUpdate(event) {
+    this.setState({ winner: event.target.value.toUpperCase() });
+  }
+
+  persistWinner(event) {
+    event.preventDefault();
+    const newEntry = { guesses: this.props.guesses, player: this.state.winner };
+    saveHOFEntry(newEntry, this.props.onStored);
   }
 
   render() {
     return (
-      <form className="highScoreInput">
+      <form className="highScoreInput" onSubmit={this.persistWinner}>
         <p>
           <label>
             Bravo ! Entre ton prénom :
             <input
               autoComplete="given-name"
               type="text"
+              onChange={this.handleWinnerUpdate}
               value={this.state.winner}
             />
           </label>
@@ -34,6 +47,7 @@ class HighScoreInput extends Component {
 
 HighScoreInput.propTypes = {
   guesses: PropTypes.number.isRequired,
+  onStored: PropTypes.func.isRequired,
 };
 
 export default HighScoreInput;

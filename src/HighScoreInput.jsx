@@ -11,7 +11,7 @@ class HighScoreInput extends Component {
     this.state = {
       winner: '',
     };
-    this.handleWinnerUpdate = this.handleWinnerUpdate.bine(this);
+    this.handleWinnerUpdate = this.handleWinnerUpdate.bind(this);
     this.persistWinner = this.persistWinner.bind(this);
   }
 
